@@ -1,0 +1,10 @@
+{
+  "id": "dql-syntax",
+  "name": "DQL Syntax",
+  "version": "1.0.0",
+  "minAppVersion": "1.0.0",
+  "description": "Syntax highlighting for Dynatrace Query Language (DQL) in code blocks.",
+  "author": "Andrew Usher",
+  "authorUrl": "https://github.com/andrewusher",
+  "isDesktopOnly": false
+}

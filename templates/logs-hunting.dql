@@ -1,0 +1,46 @@
+// ──────────────────────────────────────────────
+// DQL — Log analysis / error tracking examples
+// ──────────────────────────────────────────────
+
+// 1. Recent errors from a specific log source
+fetch logs, from:now()-1h
+| filter matchesValue(log.source, "pgi.log")
+| filter contains(content, "ERROR")
+| sort timestamp desc
+| limit 50
+
+// 2. Error count by host over the last 24 hours
+fetch logs, from:now()-1d
+| filter contains(content, "ERROR") OR contains(content, "FATAL")
+| summarize count(), by:{host.name}
+| sort count desc
+
+// 3. Response time percentiles for a service endpoint
+fetch logs, from:now()-6h
+| filter matchesValue(service.name, "checkout-service")
+| parse content, "response_time=DOUBLE:response_ms"
+| summarize
+    p50 = percentile(response_ms, 50),
+    p95 = percentile(response_ms, 95),
+    p99 = percentile(response_ms, 99),
+    by:{host.name}
+
+// 4. Find the slowest individual requests
+fetch logs, from:now()-1h
+| filter matchesValue(log.source, "access.log")
+| parse content, "method=STRING:method path=STRING:path status=INT:status duration=DOUBLE:dur_ms"
+| sort dur_ms desc
+| limit 20
+
+// 5. Log volume by source (top talkers)
+fetch logs, from:now()-1h
+| summarize count() as events, by:{log.source}
+| sort events desc
+| limit 10
+
+// 6. Status code distribution
+fetch logs, from:now()-1h
+| filter matchesValue(log.source, "access.log")
+| parse content, "status=INT:http_status"
+| summarize count() as requests, by:{http_status}
+| sort http_status asc
