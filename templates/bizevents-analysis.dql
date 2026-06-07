@@ -1,0 +1,43 @@
+// ──────────────────────────────────────────────────
+// DQL — Business event aggregation and filtering
+// ──────────────────────────────────────────────────
+
+// 1. Order volume over the last week, by day
+fetch bizevents, from:now()-7d
+| filter matchesValue(event.type, "order.placed")
+| summarize count() as orders, by:{date = getDayOfMonth(timestamp)}
+| sort date asc
+
+// 2. Revenue by product category
+fetch bizevents, from:now()-30d
+| filter matchesValue(event.type, "order.completed")
+| fieldsAdd revenue = cast(amount, double)
+| summarize total_revenue = sum(revenue), order_count = count(), by:{product.category}
+| sort total_revenue desc
+
+// 3. Checkout funnel — step-by-step drop-off
+fetch bizevents, from:now()-7d
+| filter matchesValue(event.type, "cart.added")
+    OR matchesValue(event.type, "checkout.started")
+    OR matchesValue(event.type, "payment.submitted")
+    OR matchesValue(event.type, "order.confirmed")
+| summarize count() as users, by:{event.type}
+
+// 4. Pending approvals older than 3 days
+fetch bizevents, from:now()-7d
+| filter matchesValue(event.type, "approval.pending")
+| filter timestamp < now() - 3d
+| fields event.id, event.type, timestamp, assignee
+
+// 5. Failed payment attempts by payment provider
+fetch bizevents, from:now()-24h
+| filter matchesValue(event.type, "payment.failed")
+| summarize count() as attempts, by:{payment.provider, payment.error_code}
+| sort attempts desc
+
+// 6. Business events with user session context
+fetch bizevents, from:now()-1h
+| filter isNotNull(user_session)
+| summarize count() as events, by:{user_session, event.type}
+| sort events desc
+| limit 20

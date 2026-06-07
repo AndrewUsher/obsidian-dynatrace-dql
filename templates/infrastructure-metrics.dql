@@ -1,0 +1,35 @@
+// ──────────────────────────────────────────────────────
+// DQL — Infrastructure metrics, timeseries, Smartscape
+// ──────────────────────────────────────────────────────
+
+// 1. CPU usage timeseries for a specific host (last 2 hours)
+timeseries cpu_usage = avg(dt.host.cpu.usage), by:{host.name}, from:now()-2h
+| filter matchesValue(host.name, "web-01.prod.example.com")
+
+// 2. Top hosts by memory consumption
+timeseries mem_avg = avg(dt.host.mem.usage), by:{host.name}, from:now()-30m
+| sort mem_avg desc
+| limit 10
+
+// 3. Disk space forecast — hosts nearing capacity
+timeseries disk_used = avg(dt.host.disk.used_pct), by:{host.name}, from:now()-7d
+| filter disk_used > 85
+| sort disk_used desc
+
+// 4. Traverse Smartscape: find all services running on a host
+smartscapeNodes type("HOST")
+| filter matchesValue(entity.name, "web-01.prod.example.com")
+| traverse direction("runsOn")
+| fields entity.name, entity.type
+
+// 5. Container restarts in the last hour
+fetch events, from:now()-1h
+| filter matchesValue(event.type, "CONTAINER_RESTART")
+| summarize count() as restarts, by:{container.name, host.name}
+| sort restarts desc
+
+// 6. Network throughput by NIC
+timeseries rx_bytes = avg(dt.host.net.nic.traffic), by:{host.name, nic}, from:now()-1h
+| fieldsAdd rx_mbps = rx_bytes * 8 / 1000000
+| sort rx_mbps desc
+| limit 20
