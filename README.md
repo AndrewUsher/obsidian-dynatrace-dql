@@ -86,3 +86,7 @@ npm run dev     # watch mode for development
 ## License
 
 MIT
+
+## Credits
+
+- Inspired by and forked from https://community.obsidian.md/plugins/talon-cql
