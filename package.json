@@ -1,6 +1,6 @@
 {
   "name": "dql-syntax",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Obsidian plugin — DQL syntax highlighting for Dynatrace Query Language",
   "main": "main.js",
   "scripts": {
