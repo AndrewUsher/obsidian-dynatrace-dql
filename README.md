@@ -28,7 +28,7 @@ Works in **reading mode** with full token highlighting and a copy button.
 
 ### Manual
 
-1. Download `main.js`, `manifest.json`, `styles.css` from the [latest release](../../releases/latest)
+1. Download `main.js`, `manifest.json`, `styles.css` from the [latest release](https://github.com/AndrewUsher/obsidian-dynatrace-dql/releases/latest)
 2. Create `.obsidian/plugins/dql-syntax/` in your vault
 3. Copy the three files there
 4. Enable in **Settings → Community Plugins**
