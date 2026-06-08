@@ -12,7 +12,7 @@ const versions = JSON.parse(readFileSync('versions.json', 'utf8'))
 
 manifest.version = version
 pkg.version = version
-versions[version] = manifest.minAppVersion
+versions[version] = version
 
 writeFileSync('manifest.json', JSON.stringify(manifest, null, 2) + '\n')
 writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n')
