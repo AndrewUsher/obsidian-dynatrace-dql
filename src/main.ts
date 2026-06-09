@@ -67,14 +67,7 @@ export default class DQLSyntaxPlugin extends Plugin {
 			id: "insert-dql-code-block",
 			name: "Insert DQL code block",
 			icon: "code",
-			editorCallback: (editor: Editor) => {
-				const selection = editor.getSelection();
-				if (selection) {
-					editor.replaceSelection("```dql\n" + selection + "\n```");
-				} else {
-					editor.replaceSelection("```dql\n\n```");
-				}
-			},
+			editorCallback: (editor: Editor) => this.insertDqlBlock(editor),
 		});
 
 		this.addCommand({
@@ -100,14 +93,7 @@ export default class DQLSyntaxPlugin extends Plugin {
 		this.addRibbonIcon("code", "Insert DQL code block", () => {
 			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
 			if (!view) return;
-
-			const editor = view.editor;
-			const selection = editor.getSelection();
-			if (selection) {
-				editor.replaceSelection("```dql\n" + selection + "\n```");
-			} else {
-				editor.replaceSelection("```dql\n\n```");
-			}
+			this.insertDqlBlock(view.editor);
 		});
 	}
 
@@ -136,6 +122,16 @@ export default class DQLSyntaxPlugin extends Plugin {
 			view.editor.setCursor({ line: info.lineStart + 1, ch: 0 });
 			view.editor.focus();
 		});
+	}
+
+	/** Insert a DQL fenced code block at the current editor cursor. */
+	private insertDqlBlock(editor: Editor) {
+		const selection = editor.getSelection();
+		if (selection) {
+			editor.replaceSelection("```dql\n" + selection + "\n```");
+		} else {
+			editor.replaceSelection("```dql\n\n```");
+		}
 	}
 
 	onunload() {}
