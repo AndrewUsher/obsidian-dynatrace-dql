@@ -131,6 +131,10 @@ export default class DQLSyntaxPlugin extends Plugin {
 			editor.replaceSelection("```dql\n" + selection + "\n```");
 		} else {
 			editor.replaceSelection("```dql\n\n```");
+			// After insertion the cursor is on the closing ``` line.
+			// Move up to the blank line so the user can type immediately.
+			const cursor = editor.getCursor();
+			editor.setCursor({ line: cursor.line - 1, ch: 0 });
 		}
 	}
 
