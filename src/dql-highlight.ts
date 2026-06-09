@@ -200,7 +200,13 @@ const TOKEN_CLASS: Record<string, string> = {
 	"field":    "dql-field",
 };
 
-export function highlightDQL(source: string, label = "DQL"): HTMLElement {
+export function highlightDQL(
+	source: string,
+	label = "DQL",
+	options?: { showCopyButton?: boolean; fontSize?: string }
+): HTMLElement {
+	const { showCopyButton = true, fontSize } = options ?? {};
+
 	const wrapper = activeDocument.createElement("div");
 	wrapper.className = "dql-wrapper";
 
@@ -212,25 +218,30 @@ export function highlightDQL(source: string, label = "DQL"): HTMLElement {
 	flair.textContent = label;
 	controls.appendChild(flair);
 
-	const copyBtn = activeDocument.createElement("button");
-	copyBtn.className = "dql-copy-btn";
-	copyBtn.textContent = "Copy";
-	copyBtn.addEventListener("click", () => {
-		void navigator.clipboard.writeText(source).then(() => {
-			copyBtn.textContent = "Copied!";
-			copyBtn.classList.add("dql-copy-btn--success");
-			window.setTimeout(() => {
-				copyBtn.textContent = "Copy";
-				copyBtn.classList.remove("dql-copy-btn--success");
-			}, 2000);
+	if (showCopyButton) {
+		const copyBtn = activeDocument.createElement("button");
+		copyBtn.className = "dql-copy-btn";
+		copyBtn.textContent = "Copy";
+		copyBtn.addEventListener("click", () => {
+			void navigator.clipboard.writeText(source).then(() => {
+				copyBtn.textContent = "Copied!";
+				copyBtn.classList.add("dql-copy-btn--success");
+				window.setTimeout(() => {
+					copyBtn.textContent = "Copy";
+					copyBtn.classList.remove("dql-copy-btn--success");
+				}, 2000);
+			});
 		});
-	});
-	controls.appendChild(copyBtn);
+		controls.appendChild(copyBtn);
+	}
 
 	wrapper.appendChild(controls);
 
 	const pre = activeDocument.createElement("pre");
 	pre.className = "dql-block";
+	if (fontSize) {
+		pre.style.fontSize = fontSize;
+	}
 	wrapper.appendChild(pre);
 
 	const code = activeDocument.createElement("code");
