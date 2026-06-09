@@ -1,5 +1,6 @@
 import {
 	App,
+	Editor,
 	MarkdownPostProcessorContext,
 	MarkdownView,
 	Plugin,
@@ -20,6 +21,27 @@ export const DEFAULT_SETTINGS: DQLSyntaxSettings = {
 	fontSize: "0.9em",
 };
 
+/**
+ * Find the line index of the closest ```dql fence to the given cursor line.
+ * Searches backward from the cursor first, then forward.
+ * Returns -1 if no DQL code block is found.
+ */
+function findNearestDqlBlock(lines: string[], cursorLine: number): number {
+	// Search backward from cursor
+	for (let i = cursorLine; i >= 0; i--) {
+		if (lines[i].trim() === "```dql") {
+			return i;
+		}
+	}
+	// Search forward from cursor
+	for (let i = cursorLine + 1; i < lines.length; i++) {
+		if (lines[i].trim() === "```dql") {
+			return i;
+		}
+	}
+	return -1;
+}
+
 export default class DQLSyntaxPlugin extends Plugin {
 	settings!: DQLSyntaxSettings;
 
@@ -39,6 +61,40 @@ export default class DQLSyntaxPlugin extends Plugin {
 			}
 
 			el.appendChild(block);
+		});
+
+		this.addCommand({
+			id: "insert-dql-code-block",
+			name: "Insert DQL code block",
+			icon: "code",
+			editorCallback: (editor: Editor) => {
+				const selection = editor.getSelection();
+				if (selection) {
+					editor.replaceSelection("```dql\n" + selection + "\n```");
+				} else {
+					editor.replaceSelection("```dql\n\n```");
+				}
+			},
+		});
+
+		this.addCommand({
+			id: "open-current-query-in-editor",
+			name: "Open current query in editor",
+			icon: "pencil",
+			editorCallback: (editor: Editor) => {
+				const content = editor.getValue();
+				const cursor = editor.getCursor();
+
+				// Search from the current line backward, then forward,
+				// to find the nearest ```dql fence
+				const lines = content.split("\n");
+				const nearest = findNearestDqlBlock(lines, cursor.line);
+
+				if (nearest !== -1) {
+					editor.setCursor({ line: nearest + 1, ch: 0 });
+					editor.focus();
+				}
+			},
 		});
 	}
 
