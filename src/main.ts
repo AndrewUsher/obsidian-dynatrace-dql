@@ -96,6 +96,19 @@ export default class DQLSyntaxPlugin extends Plugin {
 				}
 			},
 		});
+
+		this.addRibbonIcon("code", "Insert DQL code block", () => {
+			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (!view) return;
+
+			const editor = view.editor;
+			const selection = editor.getSelection();
+			if (selection) {
+				editor.replaceSelection("```dql\n" + selection + "\n```");
+			} else {
+				editor.replaceSelection("```dql\n\n```");
+			}
+		});
 	}
 
 	async loadSettings() {
